@@ -1,4 +1,6 @@
 import csv
+import numpy as np
+import pandas as pd
 
 def INPUT(file_name):
     F = open("./"+file_name+".csv", "r", encoding="utf-8")
@@ -13,54 +15,37 @@ def INPUT(file_name):
 
 def PREPROCESSING(table, labels, WH_D_L = "DICT"):
 
-    res_dict = {}
-    win_place_perc = []
-    for con in labels:
-        if con == "Id" or con == "groupId" or con == "matchId" or con == "matchType" or con == "winPlacePerc":
-            continue
-        elif con == "rideDistance" or con == "swimDistance" or con == "walkDistance":
-            continue
-        else :
-            res_dict[con] = []
-    res_dict["Distance"] = []
+    new_labels = ["assists","boosts","damageDealt","DBNOs","headshotKills","heals","killPlace","killPoints","kills","killStreaks","longestKill","matchDuration","numGroups", "rankPoints","revives","Distance","roadKills","teamKills","vehicleDestroys","weaponsAcquired","winPoints"]
 
-    for con in table:
+    DATA_TABLE = np.zeros((len(table),len(new_labels)))
+
+    win_place_perc = []
+
+    for i in range(len(table)):
         Distance = 0
         for index in labels:
-            if index == "Id" or index == "groupId" or index == "matchId" or index == "matchType":
+            if index == "Id" or index == "groupId" or index == "matchId" or index == "matchType" or index == "maxPlace":
                 continue
             elif index == "winPlacePerc":
                 try:
-                    win_place_perc.append(float(con[label.index(index)]))
+                    win_place_perc.append(float(table[i][labels.index(index)]))
                 except:
                     win_place_perc.append(0)
             elif index == "rideDistance" or index == "swimDistance" or index == "walkDistance":
-                Distance += float(con[labels.index(index)])
+                Distance += float(table[i][labels.index(index)])
             else :
-                try:
-                    res_dict[index].append(int(con[label.index(index)]))
-                except:
-                    res_dict[index].append(float(con[labels.index(index)]))
-        res_dict["Distance"].append(Distance)
-    new_labels = ["assists","boosts","damageDealt","DBNOs","headshotKills","heals","killPlace","killPoints","kills","killStreaks","longestKill","matchDuration","numGroups","rankPoints","revives","Distance","roadKills","teamKills","vehicleDestroys","weaponsAcquired","winPoints"]
-
-    length = len(res_dict[new_labels[1]])
-    new_data_table = []
-    index_labels = []
-    flag = True
-    for i in range(length):
-        tmp = []
-        for index in res_dict:
-            if flag :
-                index_labels.append(index)
-            tmp.append(res_dict[index][i])
-        flag = False
-        new_data_table.append(tmp)
+                try :
+                    DATA_TABLE[i][new_labels.index(index)] = int(table[i][labels.index(index)])
+                except :
+                    DATA_TABLE[i][new_labels.index(index)] = float(table[i][labels.index(index)])
+            if DATA_TABLE[i][new_labels.index("Distance")] == 0:
+                DATA_TABLE[i][new_labels.index("Distance")] = Distance
+        res_dict = pd.DataFrame(DATA_TABLE, columns=new_labels)
     
     if WH_D_L == "DICT":
         return res_dict, new_labels
     elif WH_D_L == "LIST":
-        return new_data_table, index_labels, win_place_perc
+        return DATA_TABLE, new_labels, win_place_perc
     else :
         return None
 

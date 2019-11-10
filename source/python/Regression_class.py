@@ -33,53 +33,69 @@ class REGRESSION:
         
     
     def preprocessing(self, table, label):
-
-        self.new_labels = ["assists","boosts","damageDealt","DBNOs","headshotKills","heals","killPlace","killPoints","kills","killStreaks","longestKill","matchDuration","numGroups", "rankPoints","revives","roadKills","teamKills","vehicleDestroys","weaponsAcquired","winPoints","Distance"]
-
-        self.DATA_TABLE = np.zeros((len(table),len(self.new_labels)))
-
-        for i in range(len(table)):
+        self.res_dict = {}
+        for con in label:
+            if con == "Id" or con == "groupId" or con == "matchId" or con == "matchType" or con == "winPlacePerc" or con == "maxPlace" or con == "rankPoints" or con == "killPoints" or con == "winPoints":
+                continue
+            elif con == "rideDistance" or con == "swimDistance" or con == "walkDistance":
+                continue
+            else :
+                self.res_dict[con] = []
+        self.res_dict["Distance"] = []
+        for con in table:
             Distance = 0
             for index in label:
-                if index == "Id" or index == "groupId" or index == "matchId" or index == "matchType" or index == "maxPlace":
+                if index == "Id" or index == "groupId" or index == "matchId" or index == "matchType" or index == "maxPlace" or index == "rankPoints" or index == "killPoints" or index == "winPoints":
                     continue
                 elif index == "winPlacePerc":
                     try:
-                        self.win_pre.append(float(table[i][label.index(index)]))
+                        self.win_pre.append(float(con[label.index(index)]))
                     except:
                         self.win_pre.append(0)
                 elif index == "rideDistance" or index == "swimDistance" or index == "walkDistance":
-                    Distance += float(table[i][label.index(index)])
+                    Distance += float(con[label.index(index)])
                 else :
-                    try :
-                        self.DATA_TABLE[i][self.new_labels.index(index)] = int(table[i][label.index(index)])
-                    except :
-                        self.DATA_TABLE[i][self.new_labels.index(index)] = float(table[i][label.index(index)])
-            if self.DATA_TABLE[i][self.new_labels.index("Distance")] == 0:
-                self.DATA_TABLE[i][self.new_labels.index("Distance")] = Distance
-        self.res_dict = pd.DataFrame(self.DATA_TABLE, columns=self.new_labels)
-
+                    try:
+                        self.res_dict[index].append(int(con[label.index(index)]))
+                    except:
+                        self.res_dict[index].append(float(con[label.index(index)]))
+            self.res_dict["Distance"].append(Distance)
+        self.new_labels = ["assists","boosts","damageDealt","DBNOs","headshotKills","heals","killPlace","kills","killStreaks","longestKill","matchDuration","numGroups","revives","Distance","roadKills","teamKills","vehicleDestroys","weaponsAcquired"]
+        
+        length = len(self.res_dict[self.new_labels[1]])
+        self.new_data_table = []
+        self.index_labels = []
+        flag = True
+        for i in range(length):
+            tmp = []
+            for index in self.res_dict:
+                if flag :
+                    self.index_labels.append(index)
+                tmp.append(self.res_dict[index][i])
+            flag = False
+            self.new_data_table.append(tmp)
+    
     def win_place_perc_mean(self):
         return np.mean(np.array(self.win_pre))
     
     def Plotting_scatter(self, X, Y):
         
-        X_table = np.array(self.res_dict[X])
+        X_table = self.res_dict[X]
         if Y == "winPlacePerc":
-            Y_table = np.array(self.win_pre)
+            Y_table = self.win_pre
         else :
-            Y_table = np.array(self.res_dict[Y])
+            Y_table = self.res_dict[Y]
         plt.scatter(X_table,Y_table,marker="o", color="red")
         plt.xlabel(X)
         plt.ylabel(Y)
         plt.show()
 
     def Plotting_bar(self, X, Y):
-        X_table = np.array(self.res_dict[X])
+        X_table = self.res_dict[X]
         if Y == "winPlacePerc":
-            Y_table = np.array(self.win_pre)
+            Y_table = self.win_pre
         else :
-            Y_table = np.array(self.res_dict[Y])
+            Y_table = self.res_dict[Y]
         
         plt.bar(X_table,Y_table)
         plt.xlabel(X)
@@ -126,9 +142,9 @@ class REGRESSION:
 
         plt.show()
     
-    def Total_REG_RF(self, Importance_name, Importance_analye = True):
+    def Total_REG_RF(self, Importance_name="Importance", Importance_analye = True):
 
-        X_table = np.array(self.DATA_TABLE)
+        X_table = np.array(self.new_data_table)
         Y_perc = np.array(self.win_pre)
 
         xTrain, xTest, yTrain, yTest = train_test_split(X_table, Y_perc, test_size=0.2, random_state=531)
@@ -144,7 +160,7 @@ class REGRESSION:
             Var_Importance = Var_Importance/Var_Importance.max()
 
             STR = ""
-            for name, Importance in zip(self.new_labels, Var_Importance):
+            for name, Importance in zip(self.index_labels, Var_Importance):
                 STR += str(name) + " : " + str(Importance) + "\n"
             
             F = open("./"+Importance_name+".txt", "w", encoding="utf-8")
@@ -156,16 +172,16 @@ class REGRESSION:
         print("score: ",np.mean(tree_rmse_score))
 
 
-    def Total_REG_LG(self, Importance_name,  Importance_analye = True):
+    def Total_REG_LG(self, Importance_name="Importance",  Importance_analye = True, epoch = 1000):
         
-        X_data = np.array(self.DATA_TABLE)
+        X_data = np.array(self.new_data_table)
         Y_perc = np.array(self.win_pre)
         #xTrain, xTest, yTrain, yTest = train_test_split(X_data, Y_perc, test_size=0.2, random_state=531)
 
         params = {'learning_rate': 0.01, 'max_depth': 16, 'boosting': 'gbdt', 'objective': 'regression', 'metric': 'rmse', 'num_leaves': 144, 'feature_fraction': 0.9, 'bagging_fraction': 0.7, 'bagging_freq': 5, 'seed':2018}
         
         pred = np.zeros(len(X_data))
-        cv = KFold(n_splits=3,shuffle=True,random_state=0)
+        cv = KFold(n_splits=5,shuffle=True,random_state=0)
         Error = []
         for train_index, test_index in cv.split(X_data):
             xTrain, xTest = X_data[train_index], X_data[test_index]
@@ -174,7 +190,7 @@ class REGRESSION:
             train_ds = lgb.Dataset(xTrain, label=yTrain)
             val_ds = lgb.Dataset(xTest, label=yTest)
 
-            self.REGLG = lgb.train(params, train_ds, 1000, val_ds,verbose_eval=10, early_stopping_rounds=100)
+            self.REGLG = lgb.train(params, train_ds, epoch, val_ds,verbose_eval=10, early_stopping_rounds=100)
             pred[test_index] = self.REGLG.predict(xTest)
             Error.append(mean_squared_error(pred[test_index],yTest))
         lgb.plot_importance(self.REGLG)
@@ -183,15 +199,15 @@ class REGRESSION:
         LG_rmse_score = np.sqrt(np.mean(Error))
         print("score: ",LG_rmse_score)
 
-    def Total_REG_XG(self, Importance_name, Importance_analye = True):
+    def Total_REG_XG(self, Importance_name="Importance", Importance_analye = True, epoch = 2100):
         
-        X_data = np.array(self.DATA_TABLE)
+        X_data = np.array(self.new_data_table)
         Y_perc = np.array(self.win_pre)
 
         params = {'objective': 'reg:linear', 'eval_metric': 'rmse', 'eta': 0.005, 'max_depth': 15, 'subsample': 0.6, 'colsample_bytree': 0.6, 'alpha':0.001, 'random_state': 42, 'silent': True}
 
         pred = np.zeros(len(X_data))
-        cv = KFold(n_splits=3,shuffle=True,random_state=0)
+        cv = KFold(n_splits=5,shuffle=True,random_state=0)
         Error = []
         
         for train_index, test_index in cv.split(X_data):
@@ -202,7 +218,7 @@ class REGRESSION:
             val_ds = xgb.DMatrix(xTest, yTest)
             watch_list = [(train_ds, "TRAIN"),(val_ds, "VAL")]
 
-            self.REGXG = xgb.train(params, train_ds, 2100, watch_list, maximize=False, early_stopping_rounds = 100, verbose_eval=100)
+            self.REGXG = xgb.train(params, train_ds, epoch, watch_list, maximize=False, early_stopping_rounds = 100, verbose_eval=100)
             
             pred[test_index] = self.REGXG.predict(xgb.DMatrix(xTest))
             Error.append(mean_squared_error(pred[test_index], yTest))
@@ -212,9 +228,9 @@ class REGRESSION:
         XG_rmse_score = np.sqrt(np.mean(Error))
         print("score: ",XG_rmse_score)
 
-    def Total_REG_CAT(self, Importance_name, Importance_analye = True):
+    def Total_REG_CAT(self, Importance_name="Importance", Importance_analye = True, epoch = 1000):
         
-        X_data = np.array(self.DATA_TABLE)
+        X_data = np.array(self.new_data_table)
         Y_perc = np.array(self.win_pre)
 
         pred = np.zeros(len(X_data))
@@ -225,7 +241,7 @@ class REGRESSION:
             xTrain, xTest = X_data[train_index], X_data[test_index]
             yTrain, yTest = Y_perc[train_index], Y_perc[test_index]
 
-            self.REGCAT = CatBoostRegressor(iterations=1000, learning_rate=0.1, depth=4, l2_leaf_reg=20, bootstrap_type='Bernoulli', subsample=0.6, eval_metric='RMSE', metric_period=50, od_type='Iter', od_wait=45, random_seed=17, allow_writing_files=False)
+            self.REGCAT = CatBoostRegressor(iterations=epoch, learning_rate=0.1, depth=4, l2_leaf_reg=20, bootstrap_type='Bernoulli', subsample=0.6, eval_metric='RMSE', metric_period=50, od_type='Iter', od_wait=45, random_seed=17, allow_writing_files=False)
             self.REGCAT.fit(xTrain, yTrain, eval_set=(xTest, yTest), use_best_model=True, verbose=True)
 
             pred[test_index] = self.REGCAT.predict(xTest)
@@ -252,18 +268,16 @@ class REGRESSION:
             pred = self.REGXG.predict(X_table)
         elif REGRESSOR_NAME == "CAT":
             pred = self.REGCAT.predict(X_table)
-        '''
-        with open("./" + DATA_TABLE_NAME + "_result" + ".csv", "w", encoding='utf-8') as FILE:
-            FILE.writelines(pred)
-        print(pred)
-        '''
+
+        #print(mean_squared_error(pred, Y_table))
+
         return pred
     
     def SHAP_Analysis(self, REGRESSOR_NAME = "RF", dependence_plot_name = []):
         
         shap.initjs()
 
-        DATA_TABLE = self.res_dict
+        DATA_TABLE = pd.DataFrame(self.new_data_table, columns = self.index_labels)
 
         if REGRESSOR_NAME == "XG":
             explainer = shap.TreeExplainer(self.REGXG)
@@ -291,7 +305,7 @@ class REGRESSION:
             for index in dependence_plot_name :
                 shap.dependence_plot(index, shap_val, DATA_TABLE)
 
-    
+'''
 
 A = REGRESSION("./V4_data/train_duo_V4.csv")
 A.preprocessing(A.table,A.labels)
@@ -299,7 +313,7 @@ A.preprocessing(A.table,A.labels)
 A.Total_REG_CAT("Importance")
 A.SHAP_Analysis("CAT",["kills"])
 
-
+'''
 '''
 DATA_list = os.listdir("./V4_data")
 

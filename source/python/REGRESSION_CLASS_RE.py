@@ -37,13 +37,9 @@ class REGRESSION:
         for con in label:
             if con == "Id" or con == "groupId" or con == "matchId" or con == "matchType" or con == "winPlacePerc" or con == "maxPlace" or con == "rankPoints" or con == "killPoints" or con == "winPoints":
                 continue
-            elif con == "rideDistance" or con == "swimDistance" or con == "walkDistance":
-                continue
             else :
                 self.res_dict[con] = []
-        self.res_dict["Distance"] = []
         for con in table:
-            Distance = 0
             for index in label:
                 if index == "Id" or index == "groupId" or index == "matchId" or index == "matchType" or index == "maxPlace" or index == "rankPoints" or index == "killPoints" or index == "winPoints":
                     continue
@@ -52,15 +48,12 @@ class REGRESSION:
                         self.win_pre.append(float(con[label.index(index)]))
                     except:
                         self.win_pre.append(0)
-                elif index == "rideDistance" or index == "swimDistance" or index == "walkDistance":
-                    Distance += float(con[label.index(index)])
                 else :
                     try:
                         self.res_dict[index].append(int(con[label.index(index)]))
                     except:
                         self.res_dict[index].append(float(con[label.index(index)]))
-            self.res_dict["Distance"].append(Distance)
-        self.new_labels = ["assists","boosts","damageDealt","DBNOs","headshotKills","heals","killPlace","kills","killStreaks","longestKill","matchDuration","numGroups","revives","Distance","roadKills","teamKills","vehicleDestroys","weaponsAcquired"]
+        self.new_labels = ["assists","boosts","damageDealt","DBNOs","headshotKills","heals","killPlace","kills","killStreaks","longestKill","matchDuration","numGroups","revives","roadKills","teamKills","vehicleDestroys","weaponsAcquired","rideDistance","walkDistance","swimDistance"]
         
         length = len(self.res_dict[self.new_labels[1]])
         self.new_data_table = []

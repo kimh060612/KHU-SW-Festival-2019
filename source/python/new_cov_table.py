@@ -10,7 +10,7 @@ import math
                 except:
                     win_pre.append(0)
 '''
-
+"""
 def preprocessing(table, label):
     new_labels = ["assists","boosts","damageDealt","DBNOs","headshotKills","heals","killPlace","killPoints","kills","killStreaks","longestKill","matchDuration","numGroups", "rankPoints","revives","Distance","roadKills","teamKills","vehicleDestroys","weaponsAcquired","winPoints","winPlacePerc"]
 
@@ -34,29 +34,72 @@ def preprocessing(table, label):
             DATA_TABLE[i][new_labels.index("Distance")] = Distance
     res_dict = pd.DataFrame(DATA_TABLE, columns=new_labels)
     return DATA_TABLE, res_dict, new_labels
+"""
 
-F = open('./train_solo_V2.csv','r',encoding='utf-8')
-rdr = csv.reader(F)
-data_table = []
-for line in rdr:
-    data_table.append(line)
+def PREPROCESSING(table, labels, WH_D_L = "DICT"):
 
-labels = data_table[0]
-del data_table[0]
+    res_dict = {}
+    for con in labels:
+        if con == "Id" or con == "groupId" or con == "matchId" or con == "matchType" or con == "maxPlace" or con == "rankPoints" or con == "killPoints" or con == "winPoints":
+            continue
+        else :
+            res_dict[con] = []
+    win_pre = []
+    for con in table:
+        for index in labels:
+            if index == "Id" or index == "groupId" or index == "matchId" or index == "matchType" or index == "maxPlace" or index == "rankPoints" or index == "killPoints" or index == "winPoints":
+                continue
+            elif index == "winPlacePerc":
+                try:
+                    res_dict["winPlacePerc"].append(float(con[labels.index(index)]))
+                except:
+                    res_dict["winPlacePerc"].append(0)
+            else :
+                try:
+                    res_dict[index].append(int(con[labels.index(index)]))
+                except:
+                    res_dict[index].append(float(con[labels.index(index)]))
+    new_labels = ["assists","boosts","damageDealt","DBNOs","headshotKills","heals","killPlace","kills","killStreaks","longestKill","matchDuration","numGroups","revives","roadKills","teamKills","vehicleDestroys","weaponsAcquired","rideDistance","walkDistance","swimDistance","winPlacePerc"]
 
-new_TABLE ,new_data_Dic, new_label = preprocessing(data_table, labels)
+    length = len(res_dict[new_labels[1]])
+    new_data_table = []
+    index_labels = []
+    flag = True
+    for i in range(length):
+        tmp = []
+        for index in res_dict:
+            if flag :
+                index_labels.append(index)
+            tmp.append(res_dict[index][i])
+        flag = False
+        new_data_table.append(tmp)
+    
+    if WH_D_L == "DICT":
+        return res_dict, new_labels
+    elif WH_D_L == "LIST":
+        return new_data_table, new_labels, win_pre
+    else :
+        return None
 
-K = np.array(new_data_Dic["Distance"])
-#print(K)
-#print(W)
+name_set = ["solo","squad","duo","solo_fpp","duo_fpp","squad_fpp"]
 
-res = pd.DataFrame(new_TABLE, columns=new_label)
-res.to_csv("./V5_data/train_solo_V5.csv", header=True, index=False)
-print("Complete")
+for name in name_set:
+    path_Open = "./train_"+name+"_V2.csv"
+    path_Save = "./V6_data/train_"+name+"_V6.csv"
+    F = open(path_Open,'r',encoding='utf-8')
+    rdr = csv.reader(F)
+    data_table = []
+    for line in rdr:
+        data_table.append(line)
 
-#print(Pearson_table)
-#result = pd.DataFrame(Pearson_table,columns = new_label,index = new_label)
+    labels = data_table[0]
+    del data_table[0]
 
-#result.to_csv("./solo_Pearson.csv", header=True, index=True)
+    new_TABLE ,new_label , winplace  = PREPROCESSING(data_table, labels, WH_D_L = "LIST")
+
+    res = pd.DataFrame(new_TABLE, columns=new_label)
+    res.to_csv(path_Save, header=True, index=False)
+    print(name,"Complete")
+
 
 

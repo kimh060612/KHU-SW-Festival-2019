@@ -137,8 +137,8 @@ for name in name_set:
     res.to_csv(path_Save, header=True, index=False)
     print(name,"Complete")
 '''
-
-path_total = "./train_V2.csv"
+path = "/home/michael/Desktop/pubg-finish-placement-prediction/"
+path_total = path + "train_V2.csv"
 path_total_Save = "./V8_data/train_V8.csv"
 F = open(path_total,"r",encoding="utf-8")
 rdr = csv.reader(F)

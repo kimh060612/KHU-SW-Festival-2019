@@ -9,6 +9,7 @@ import xgboost as xgb
 from catboost import CatBoostRegressor
 import catboost as cat
 from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_absolute_error
 import shap
 import csv
 import pandas as pd
@@ -26,7 +27,6 @@ This code is built for managing several experiment easily
 
 class REGRESSION:
     
-
     # getting the data file
     def __init__(self, file_path, encode='utf-8'):
         self.path = file_path
@@ -215,7 +215,7 @@ class REGRESSION:
         Y_perc = np.array(self.win_pre)
         #xTrain, xTest, yTrain, yTest = train_test_split(X_data, Y_perc, test_size=0.2, random_state=531)
 
-        params = {'learning_rate': 0.01, 'max_depth': 16, 'boosting': 'gbdt', 'objective': 'regression', 'metric': 'rmse', 'num_leaves': 144, 'feature_fraction': 0.9, 'bagging_fraction': 0.7, 'bagging_freq': 5, 'seed':2018}
+        params = {'learning_rate': 0.01, 'max_depth': 16, 'boosting': 'gbdt', 'objective': 'regression', 'metric': 'rmse', 'num_leaves': 144, 'feature_fraction': 0.9, 'bagging_fraction': 0.7, 'bagging_freq': 5, 'seed':2018, 'device' : 'gpu'}
         
         pred = np.zeros(len(X_data))
         cv = KFold(n_splits=5,shuffle=True,random_state=0)

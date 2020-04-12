@@ -290,11 +290,11 @@ class REGRESSION:
         print("score: ",CAT_rmse_score)
     
     def Total_REG_Deep(self, epoch = 1000):
-
-        Data_Shape = len(self.new_labels)
+        
         X_data = np.array(self.new_data_table)
         Y_perc = np.array(self.win_pre)
-
+        Data_Shape = X_data.shape[1]
+        
         self.DeepREG = DeepRegression(Data_Shape, X_data,Y_perc)
         self.DeepREG.Train(epoch)
 

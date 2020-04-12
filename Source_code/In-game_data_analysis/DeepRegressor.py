@@ -49,7 +49,6 @@ class DeepRegression:
         self.Shape = Shape
         self.Data = Data
         self.Pred = Pred
-
         self.Regressor = self.Regression_model()
     
     def Regression_model(self):
@@ -57,18 +56,18 @@ class DeepRegression:
         Adam = adam(learning_rate=0.001, beta_1=0.9, beta_2=0.999)
         
         model = Sequential()
-        model.add(Dense(50, input_shape=(self.Shape), activation="relu", use_bias = True))
-        model.add(Dense(100, activation="relu",use_bias = True))
+        model.add(Dense(50, input_dim=self.Shape, activation="relu"))
+        model.add(Dense(100, activation="relu"))
         model.add(BatchNormalization(momentum=0.99, epsilon=0.001))
-        model.add(Dense(100, activation="relu",use_bias = True))
+        model.add(Dense(100, activation="relu"))
         model.add(Dropout(0.5))
         model.add(BatchNormalization(momentum=0.99, epsilon=0.001))
-        model.add(Dense(100, activation="relu",use_bias = True))
+        model.add(Dense(100, activation="relu"))
         model.add(Dropout(0.5))
         model.add(BatchNormalization(momentum=0.99, epsilon=0.001))
-        model.add(Dense(10, activation="relu",use_bias = True))
+        model.add(Dense(10, activation="relu"))
         model.add(Dense(1, activation="linear"))
-        model.compile(loss="mean_square_error", optimizer = Adam, metrics = ["mse","mae"])
+        model.compile(loss="mean_squared_error", optimizer = Adam, metrics = ["mse","mae"])
 
         model.summary()
 

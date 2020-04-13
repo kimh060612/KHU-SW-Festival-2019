@@ -358,7 +358,7 @@ class REGRESSION:
             for index in dependence_plot_name :
                 shap.dependence_plot(index, shap_val, DATA_TABLE)
         elif REGRESSOR_NAME == "Deep":
-            explainer = shap.DeepExplainer(self.DeepREG, DATA_TABLE)
+            explainer = shap.DeepExplainer(self.DeepREG.Regressor, DATA_TABLE)
             shap_val = explainer.shap_values(DATA_TABLE)
             shap.summary_plot(shap_val, DATA_TABLE, plot_type="bar",max_display=21)
             shap.summary_plot(shap_val,DATA_TABLE, plot_type="dot",max_display=21)

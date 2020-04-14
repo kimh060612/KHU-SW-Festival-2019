@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 import os
 
-def get_session(gpu_fraction=0.4):
+def get_session(gpu_fraction=0.6):
 
     num_threads = os.environ.get('OMP_NUM_THREADS')
     gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_fraction)
@@ -22,6 +22,11 @@ def get_session(gpu_fraction=0.4):
             gpu_options=gpu_options, intra_op_parallelism_threads=num_threads))
     else:
         return tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+
+class PrintDot(tf.keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs):
+        if epoch % 100 == 0: print('')
+        print('.', end='')
 
 def plot_history(history):
     hist = pd.DataFrame(history.history)
@@ -38,6 +43,7 @@ def plot_history(history):
             label = 'Val Error')
     plt.ylim([0,1])
     plt.legend()
+
     
 
 class DeepRegression:
@@ -64,7 +70,7 @@ class DeepRegression:
         model.add(tf.keras.layers.Dense(128, activation="relu"))
         model.add(tf.keras.layers.Dropout(0.5))
         model.add(tf.keras.layers.Dense(1, activation="linear"))
-        model.compile(loss=tf.keras.losses.mean_absolute_error, optimizer = Adam, metrics = ["mae"])
+        model.compile(loss=tf.keras.losses.mean_squared_error, optimizer = Adam, metrics = ["mse","mae"])
 
         model.summary()
 
@@ -75,7 +81,7 @@ class DeepRegression:
         
         tf.keras.backend.set_session(get_session())
         early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
-        History = self.Regressor.fit(self.Data, self.Pred, batch_size=8, epochs=epoch,validation_split = 0.2, verbose=0, callbacks=[early_stop])
+        History = self.Regressor.fit(self.Data, self.Pred, batch_size=2, epochs=epoch,validation_split = 0.2, verbose=0, callbacks=[early_stop])
 
         #hist = pd.DataFrame(History.history)
         #hist['epoch'] = History.epoch

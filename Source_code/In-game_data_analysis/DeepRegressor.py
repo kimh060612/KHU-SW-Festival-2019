@@ -37,13 +37,16 @@ def plot_history(history):
     plt.subplot(2,1,1)
     plt.xlabel('Epoch')
     plt.ylabel('Mean Abs Error [MPG]')
-    plt.plot(hist['epoch'], hist['mae'],
-            label='Train Error')
-    plt.plot(hist['epoch'], hist['val_mae'],
-            label = 'Val Error')
-    plt.ylim([0,1])
+    plt.plot(hist['epoch'], hist['mae'],label='Train Error')
+    plt.ylim([0,0.1])
     plt.legend()
 
+    plt.subplot(2,1,1)
+    plt.xlabel('Epoch')
+    plt.ylabel('Mean Abs Error [MPG]')
+    plt.plot(hist['epoch'], hist['val_mae'], label = 'Val Error')
+    plt.ylim([0,1])
+    plt.legend()
     
 
 class DeepRegression:
@@ -81,13 +84,13 @@ class DeepRegression:
         
         tf.keras.backend.set_session(get_session())
         early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
-        History = self.Regressor.fit(self.Data, self.Pred, batch_size=2, epochs=epoch,validation_split = 0.2, verbose=0, callbacks=[early_stop])
+        History = self.Regressor.fit(self.Data, self.Pred, batch_size=8, epochs=epoch,validation_split = 0.2, verbose=0, callbacks=[early_stop,PrintDot()])
 
-        #hist = pd.DataFrame(History.history)
-        #hist['epoch'] = History.epoch
-        #hist.tail()
+        hist = pd.DataFrame(History.history)
+        hist['epoch'] = History.epoch
+        hist.tail()
 
-        #plot_history(History)
+        plot_history(History)
 
     def Predict(self, TestData):
         Pred =  self.Regressor.predict(TestData).flatten()

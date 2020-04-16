@@ -87,10 +87,13 @@ class DeepRegression:
         History = self.Regressor.fit(self.Data, self.Pred, batch_size=8, epochs=epoch,validation_split = 0.2, verbose=0, callbacks=[early_stop,PrintDot()])
 
         hist = pd.DataFrame(History.history)
-        hist['epoch'] = History.epoch
-        hist.tail()
+        
+        print(hist)
 
-        plot_history(History)
+        #hist['epoch'] = History.epoch
+        #hist.tail()
+
+        #plot_history(History)
 
     def Predict(self, TestData):
         Pred =  self.Regressor.predict(TestData).flatten()

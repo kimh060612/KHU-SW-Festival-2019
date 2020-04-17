@@ -58,7 +58,7 @@ class DeepRegression:
     
     def Regression_model(self):
         
-        Adam = tf.keras.optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999)
+        Adam = tf.keras.optimizers.Adam(lr=0.0005, beta_1=0.9, beta_2=0.999)
         
         model = tf.keras.Sequential()
         model.add(tf.keras.layers.Dense(128, input_dim=self.Shape, activation="relu"))

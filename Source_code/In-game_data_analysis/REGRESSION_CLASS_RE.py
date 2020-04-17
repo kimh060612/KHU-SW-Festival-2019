@@ -363,8 +363,9 @@ class REGRESSION:
 
             BackGround = X_data[np.random.choice(X_data.shape[0], 10000, replace = False)]
             Back_Ground_Table = pd.DataFrame(BackGround, columns = self.index_labels)
-            explainer = shap.DeepExplainer(self.DeepREG.Regressor, Back_Ground_Table)
-            shap_val = explainer.shap_values(Back_Ground_Table)
+            #print(Back_Ground_Table)
+            explainer = shap.DeepExplainer(self.DeepREG.Regressor, BackGround)
+            shap_val = explainer.shap_values(BackGround)
             shap.summary_plot(shap_val, Back_Ground_Table, plot_type="bar",max_display=21)
             shap.summary_plot(shap_val,Back_Ground_Table, plot_type="dot",max_display=21)
             for index in dependence_plot_name :

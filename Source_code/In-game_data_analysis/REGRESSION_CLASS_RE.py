@@ -363,11 +363,11 @@ class REGRESSION:
 
             BackGround = X_data[np.random.choice(X_data.shape[0], 10000, replace = False)]
             explainer = shap.DeepExplainer(self.DeepREG.Regressor, BackGround)
-            shap_val = explainer.shap_values(DATA_TABLE)
-            shap.summary_plot(shap_val, DATA_TABLE, plot_type="bar",max_display=21)
-            shap.summary_plot(shap_val,DATA_TABLE, plot_type="dot",max_display=21)
+            shap_val = explainer.shap_values(BackGround)
+            shap.summary_plot(shap_val, BackGround, plot_type="bar",max_display=21)
+            shap.summary_plot(shap_val,BackGround, plot_type="dot",max_display=21)
             for index in dependence_plot_name :
-                shap.dependence_plot(index, shap_val, DATA_TABLE)
+                shap.dependence_plot(index, shap_val, BackGround)
 
 
 

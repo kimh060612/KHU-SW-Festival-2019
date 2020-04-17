@@ -88,7 +88,7 @@ class DeepRegression:
 
         hist = pd.DataFrame(History.history)
         
-        print(hist)
+        #print(hist)
 
         hist['epoch'] = History.epoch
         hist.tail()

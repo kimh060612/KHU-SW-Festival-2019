@@ -37,14 +37,14 @@ def plot_history(history):
     plt.subplot(2,1,1)
     plt.xlabel('Epoch')
     plt.ylabel('Mean Abs Error [MPG]')
-    plt.plot(hist['epoch'], hist['mae'],label='Train Error')
+    plt.plot(hist['epoch'], hist['mean_absolute_error'],label='Train Error')
     plt.ylim([0,0.1])
     plt.legend()
 
     plt.subplot(2,1,1)
     plt.xlabel('Epoch')
     plt.ylabel('Mean Abs Error [MPG]')
-    plt.plot(hist['epoch'], hist['val_mae'], label = 'Val Error')
+    plt.plot(hist['epoch'], hist['val_mean_absolute_error'], label = 'Val Error')
     plt.ylim([0,1])
     plt.legend()
     
@@ -90,10 +90,10 @@ class DeepRegression:
         
         print(hist)
 
-        #hist['epoch'] = History.epoch
-        #hist.tail()
+        hist['epoch'] = History.epoch
+        hist.tail()
 
-        #plot_history(History)
+        plot_history(History)
 
     def Predict(self, TestData):
         Pred =  self.Regressor.predict(TestData).flatten()

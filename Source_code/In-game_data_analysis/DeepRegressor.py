@@ -84,7 +84,7 @@ class DeepRegression:
         
         tf.keras.backend.set_session(get_session())
         early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
-        History = self.Regressor.fit(self.Data, self.Pred, batch_size=8, epochs=epoch,validation_split = 0.2, verbose=0, callbacks=[early_stop,PrintDot()])
+        History = self.Regressor.fit(self.Data, self.Pred, batch_size=64, epochs=epoch,validation_split = 0.2, verbose=0, callbacks=[early_stop,PrintDot()])
 
         hist = pd.DataFrame(History.history)
         

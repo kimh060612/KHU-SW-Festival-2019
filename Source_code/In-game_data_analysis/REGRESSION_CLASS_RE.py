@@ -329,41 +329,45 @@ class REGRESSION:
     def SHAP_Analysis(self, REGRESSOR_NAME = "RF", dependence_plot_name = []):
         
         shap.initjs()
-
-        DATA_TABLE = pd.DataFrame(self.new_data_table, columns = self.index_labels)
         X_data = np.array(self.new_data_table)
         Y_perc = np.array(self.win_pre)
 
+        BackGround = X_data[np.random.choice(X_data.shape[0], 10000, replace = False)]
+        Back_Ground_Table = pd.DataFrame(BackGround, columns = self.index_labels)
+
+        DATA_TABLE = pd.DataFrame(self.new_data_table, columns = self.index_labels)
+        
+
         if REGRESSOR_NAME == "XG":
             explainer = shap.TreeExplainer(self.REGXG)
-            shap_val = explainer.shap_values(DATA_TABLE)
-            shap.summary_plot(shap_val, DATA_TABLE, plot_type="bar",max_display=21)
+            shap_val = explainer.shap_values(Back_Ground_Table)
+            shap.summary_plot(shap_val, Back_Ground_Table, plot_type="bar",max_display=21)
+        
         elif REGRESSOR_NAME == "LG":
             explainer = shap.TreeExplainer(self.REGLG)
-            shap_val = explainer.shap_values(DATA_TABLE)
-            shap.summary_plot(shap_val, DATA_TABLE, plot_type="bar",max_display=21)
-            shap.summary_plot(shap_val,DATA_TABLE, plot_type="dot",max_display=21)
+            shap_val = explainer.shap_values(Back_Ground_Table)
+            shap.summary_plot(shap_val, Back_Ground_Table, plot_type="bar",max_display=21)
+            shap.summary_plot(shap_val,Back_Ground_Table, plot_type="dot",max_display=21)
             for index in dependence_plot_name :
-                shap.dependence_plot(index, shap_val, DATA_TABLE)
+                shap.dependence_plot(index, shap_val, Back_Ground_Table)
+        
         elif REGRESSOR_NAME == "CAT":
             explainer = shap.TreeExplainer(self.REGCAT)
-            shap_val = explainer.shap_values(DATA_TABLE)
-            shap.summary_plot(shap_val, DATA_TABLE, plot_type="bar", max_display=21)
-            shap.summary_plot(shap_val,DATA_TABLE, plot_type="dot",max_display=21)
+            shap_val = explainer.shap_values(Back_Ground_Table)
+            shap.summary_plot(shap_val, Back_Ground_Table, plot_type="bar", max_display=21)
+            shap.summary_plot(shap_val,Back_Ground_Table, plot_type="dot",max_display=21)
             for index in dependence_plot_name :
-                shap.dependence_plot(index, shap_val, DATA_TABLE)
+                shap.dependence_plot(index, shap_val, Back_Ground_Table)
+        
         elif REGRESSOR_NAME == "RF":
             explainer = shap.TreeExplainer(self.REGRF)
-            shap_val = explainer.shap_values(DATA_TABLE)
-            shap.summary_plot(shap_val, DATA_TABLE, plot_type="bar",max_display=21)
-            shap.summary_plot(shap_val,DATA_TABLE, plot_type="dot",max_display=21)
+            shap_val = explainer.shap_values(Back_Ground_Table)
+            shap.summary_plot(shap_val, Back_Ground_Table, plot_type="bar",max_display=21)
+            shap.summary_plot(shap_val,Back_Ground_Table, plot_type="dot",max_display=21)
             for index in dependence_plot_name :
-                shap.dependence_plot(index, shap_val, DATA_TABLE)
+                shap.dependence_plot(index, shap_val, Back_Ground_Table)
+        
         elif REGRESSOR_NAME == "Deep":
-
-            BackGround = X_data[np.random.choice(X_data.shape[0], 10000, replace = False)]
-            Back_Ground_Table = pd.DataFrame(BackGround, columns = self.index_labels)
-            #print(Back_Ground_Table)
             explainer = shap.DeepExplainer(self.DeepREG.Regressor, BackGround)
             shap_val = explainer.shap_values(BackGround)
             shap.summary_plot(shap_val, Back_Ground_Table, plot_type="bar",max_display=21)

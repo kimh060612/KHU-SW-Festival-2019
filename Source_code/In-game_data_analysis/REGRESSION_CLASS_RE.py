@@ -244,6 +244,8 @@ class REGRESSION:
         Y_perc = np.array(self.win_pre)
 
         params = {'objective': 'reg:linear', 'eval_metric': 'rmse', 'eta': 0.005, 'max_depth': 15, 'subsample': 0.6, 'colsample_bytree': 0.6, 'alpha':0.001, 'random_state': 42, 'silent': True}
+        params['gpu_id'] = 0
+        params['tree_method'] = 'gpu_hist'
 
         pred = np.zeros(len(X_data))
         cv = KFold(n_splits=5,shuffle=True,random_state=0)
@@ -280,7 +282,7 @@ class REGRESSION:
             xTrain, xTest = X_data[train_index], X_data[test_index]
             yTrain, yTest = Y_perc[train_index], Y_perc[test_index]
 
-            self.REGCAT = CatBoostRegressor(iterations=epoch, learning_rate=0.01, depth=4, l2_leaf_reg=20, bootstrap_type='Bernoulli', subsample=0.6, eval_metric='RMSE', metric_period=50, od_type='Iter', od_wait=45, random_seed=17, allow_writing_files=False)
+            self.REGCAT = CatBoostRegressor(iterations=epoch, learning_rate=0.01, depth=4, l2_leaf_reg=20, bootstrap_type='Bernoulli', subsample=0.6, eval_metric='RMSE', metric_period=50, od_type='Iter', od_wait=45, random_seed=17, allow_writing_files=False, task_type="GPU", devices='0')
             self.REGCAT.fit(xTrain, yTrain, eval_set=(xTest, yTest), use_best_model=True, verbose=True)
 
             pred[test_index] = self.REGCAT.predict(xTest)
@@ -326,13 +328,13 @@ class REGRESSION:
     
     # Interpretation of model we made with SHAP value
     # Each Algorithms have their own mdoel interpretation algorithms. But the confidence of the result shows that SHAP value has higher confidence than those experimently.
-    def SHAP_Analysis(self, REGRESSOR_NAME = "RF", dependence_plot_name = []):
+    def SHAP_Analysis(self, REGRESSOR_NAME = "RF", dependence_plot_name = [], random_sample_size = 1000):
         
         shap.initjs()
         X_data = np.array(self.new_data_table)
         Y_perc = np.array(self.win_pre)
 
-        BackGround = X_data[np.random.choice(X_data.shape[0], 10000, replace = False)]
+        BackGround = X_data[np.random.choice(X_data.shape[0], random_sample_size, replace = False)]
         Back_Ground_Table = pd.DataFrame(BackGround, columns = self.index_labels)
 
         DATA_TABLE = pd.DataFrame(self.new_data_table, columns = self.index_labels)

@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split, cross_val_score, KFold
 from sklearn.preprocessing import StandardScaler, RobustScaler, MinMaxScaler
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import Ridge
 import lightgbm as lgb
 import xgboost as xgb
 from catboost import CatBoostRegressor
@@ -300,6 +301,30 @@ class REGRESSION:
         
         self.DeepREG = DeepRegression(Data_Shape, X_data,Y_perc)
         self.DeepREG.Train(epoch)
+    
+
+    def Total_REG_Ridge(self, epoch = 1000):
+        
+        X_data = np.array(self.new_data_table)
+        Y_perc = np.array(self.win_pre)
+
+        pred = np.zeros(len(X_data))
+        cv = KFold(n_splits=3,shuffle=True,random_state=0)
+        Error = []
+
+        for train_index, test_index in cv.split(X_data):
+            xTrain, xTest = X_data[train_index], X_data[test_index]
+            yTrain, yTest = Y_perc[train_index], Y_perc[test_index]
+            
+            self.Ridge = Ridge()
+            self.Ridge.fit(xTrain, yTrain)
+
+            pred[test_index] = self.Ridge.predict(xTest)
+            Error.append(mean_absolute_error(pred[test_index], yTest))
+
+        Ridge_score = np.mean(Error)
+        print("Ridge Score: ", Ridge_score)
+        
 
     # predict winplaceperc with the model we made
     # RF = random forest,LG = lightGBM,XG = XGboost

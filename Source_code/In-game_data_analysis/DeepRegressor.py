@@ -66,6 +66,7 @@ class DeepRegression:
         model.add(tf.keras.layers.BatchNormalization(momentum=0.99, epsilon=0.001))
         model.add(tf.keras.layers.Dense(512, activation="relu"))
         model.add(tf.keras.layers.Dropout(0.5))
+        # 이 부분 Batch Normalization 빼기
         model.add(tf.keras.layers.BatchNormalization(momentum=0.99, epsilon=0.001))
         model.add(tf.keras.layers.Dense(512, activation="relu"))
         model.add(tf.keras.layers.Dropout(0.5))
@@ -74,6 +75,10 @@ class DeepRegression:
         model.add(tf.keras.layers.Dropout(0.5))
         model.add(tf.keras.layers.Dense(1, activation="linear"))
         model.compile(loss=tf.keras.losses.mean_squared_error, optimizer = Adam, metrics = ["mse","mae"])
+        
+        # 다음 구조로써 해볼 것.
+        # Model Size 늘리기
+        # Model Size는 여타 Deep learning 구조를 차용. ==> 다른거 알아보기
 
         model.summary()
 

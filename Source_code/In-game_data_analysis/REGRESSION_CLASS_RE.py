@@ -303,7 +303,7 @@ class REGRESSION:
         self.DeepREG.Train(epoch)
     
 
-    def Total_REG_Ridge(self, epoch = 1000):
+    def Total_REG_Ridge(self, alpha = 1.0):
         
         X_data = np.array(self.new_data_table)
         Y_perc = np.array(self.win_pre)
@@ -314,7 +314,7 @@ class REGRESSION:
             xTrain, xTest = X_data[train_index], X_data[test_index]
             yTrain, yTest = Y_perc[train_index], Y_perc[test_index]
             
-            self.Ridge = Ridge()
+            self.Ridge = Ridge(alpha=alpha)
             self.Ridge.fit(xTrain, yTrain)
             
             print("Ridge Training Score: ", self.Ridge.score(xTrain, yTrain))
@@ -368,8 +368,8 @@ class REGRESSION:
             shap.summary_plot(shap_val, Back_Ground_Table, plot_type="bar",max_display=21)
         
         elif REGRESSOR_NAME == "RI":
-            explainer = shap.KernelExplainer(self.Ridge)
-            shap_val = explainer.shap_values(Back_Ground_Table)
+            explainer = shap.KernelExplainer(self.Ridge, BackGround)
+            shap_val = explainer.shap_values(BackGround)
             shap.summary_plot(shap_val, Back_Ground_Table, plot_type="bar", max_display = 21)
             shap.summary_plot(shap_val, Back_Ground_Table, plot_type="dot", max_display = 21)
             for index in dependence_plot_name:
@@ -377,7 +377,7 @@ class REGRESSION:
 
         elif REGRESSOR_NAME == "LG":
             explainer = shap.TreeExplainer(self.REGLG)
-            shap_val = explainer.shap_values(Back_Ground_Table)
+            shap_val = explainer.shap_values(BackGround)
             shap.summary_plot(shap_val, Back_Ground_Table, plot_type="bar",max_display=21)
             shap.summary_plot(shap_val,Back_Ground_Table, plot_type="dot",max_display=21)
             for index in dependence_plot_name :
@@ -385,7 +385,7 @@ class REGRESSION:
         
         elif REGRESSOR_NAME == "CAT":
             explainer = shap.TreeExplainer(self.REGCAT)
-            shap_val = explainer.shap_values(Back_Ground_Table)
+            shap_val = explainer.shap_values(BackGround)
             shap.summary_plot(shap_val, Back_Ground_Table, plot_type="bar", max_display=21)
             shap.summary_plot(shap_val,Back_Ground_Table, plot_type="dot",max_display=21)
             for index in dependence_plot_name :
@@ -393,7 +393,7 @@ class REGRESSION:
         
         elif REGRESSOR_NAME == "RF":
             explainer = shap.TreeExplainer(self.REGRF)
-            shap_val = explainer.shap_values(Back_Ground_Table)
+            shap_val = explainer.shap_values(BackGround)
             shap.summary_plot(shap_val, Back_Ground_Table, plot_type="bar",max_display=21)
             shap.summary_plot(shap_val,Back_Ground_Table, plot_type="dot",max_display=21)
             for index in dependence_plot_name :

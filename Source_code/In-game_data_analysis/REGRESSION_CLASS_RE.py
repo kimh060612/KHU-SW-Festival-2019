@@ -307,8 +307,10 @@ class REGRESSION:
         
         X_data = np.array(self.new_data_table)
         Y_perc = np.array(self.win_pre)
-
+        
+        pred = np.zeros(len(X_data))
         cv = KFold(n_splits=3,shuffle=True,random_state=0)
+        Error = []
 
         for train_index, test_index in cv.split(X_data):
             xTrain, xTest = X_data[train_index], X_data[test_index]
@@ -319,7 +321,11 @@ class REGRESSION:
             
             print("Ridge Training Score: ", self.Ridge.score(xTrain, yTrain))
             print("Ridge Test Score: ", self.Ridge.score(xTest, yTest))
-            
+
+            pred[test_index] = self.Ridge.predict(xTest)
+            Error.append(mean_squared_error(pred[test_index],yTest))
+
+        print("Ridge RMSE: ", np.sqrt(np.mean(Error)))    
         
 
     # predict winplaceperc with the model we made

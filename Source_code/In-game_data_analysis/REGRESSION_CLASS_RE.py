@@ -368,7 +368,7 @@ class REGRESSION:
             shap.summary_plot(shap_val, Back_Ground_Table, plot_type="bar",max_display=21)
         
         elif REGRESSOR_NAME == "RI":
-            explainer = shap.KernelExplainer(self.Ridge, BackGround)
+            explainer = shap.KernelExplainer(self.Ridge.predict, BackGround)
             shap_val = explainer.shap_values(BackGround)
             shap.summary_plot(shap_val, Back_Ground_Table, plot_type="bar", max_display = 21)
             shap.summary_plot(shap_val, Back_Ground_Table, plot_type="dot", max_display = 21)
@@ -405,7 +405,7 @@ class REGRESSION:
             shap.summary_plot(shap_val[0], Back_Ground_Table, plot_type="bar",max_display=21)
             shap.summary_plot(shap_val[0],Back_Ground_Table, plot_type="dot",max_display=21)
             for index in dependence_plot_name :
-                shap.dependence_plot(index, shap_val, Back_Ground_Table)
+                shap.dependence_plot(index, shap_val[0], Back_Ground_Table)
 
 
 

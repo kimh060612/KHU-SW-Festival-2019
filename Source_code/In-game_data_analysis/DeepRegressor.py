@@ -38,14 +38,14 @@ def plot_history(history):
     plt.xlabel('Epoch')
     plt.ylabel('Mean Abs Error [MPG]')
     plt.plot(hist['epoch'], hist['mean_absolute_error'],label='Train Error')
-    plt.ylim([0,0.1])
+    plt.ylim([0.5,0.1])
     plt.legend()
 
     plt.subplot(2,1,1)
     plt.xlabel('Epoch')
     plt.ylabel('Mean Abs Error [MPG]')
     plt.plot(hist['epoch'], hist['val_mean_absolute_error'], label = 'Val Error')
-    plt.ylim([0,0.1])
+    plt.ylim([0.5,0.1])
     plt.legend()
     
 
@@ -58,7 +58,7 @@ class DeepRegression:
     
     def Regression_model(self):
         
-        Adam = tf.keras.optimizers.Adam(lr=0.0005, beta_1=0.9, beta_2=0.999)
+        Adam = tf.keras.optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999)
         
         model = tf.keras.Sequential()
         model.add(tf.keras.layers.Dense(128, input_dim=self.Shape, activation="relu"))
@@ -67,13 +67,16 @@ class DeepRegression:
         model.add(tf.keras.layers.Dense(512, activation="relu"))
         model.add(tf.keras.layers.Dropout(0.5))
         # 이 부분 Batch Normalization 빼기
+        #model.add(tf.keras.layers.BatchNormalization(momentum=0.99, epsilon=0.001))
+        model.add(tf.keras.layers.Dense(512, activation="relu"))
+        model.add(tf.keras.layers.BatchNormalization(momentum=0.99, epsilon=0.001))
+        model.add(tf.keras.layers.Dropout(0.5))
+        model.add(tf.keras.layers.Dense(512, activation="relu"))
         model.add(tf.keras.layers.BatchNormalization(momentum=0.99, epsilon=0.001))
         model.add(tf.keras.layers.Dense(512, activation="relu"))
-        model.add(tf.keras.layers.Dropout(0.5))
-        model.add(tf.keras.layers.BatchNormalization(momentum=0.99, epsilon=0.001))
         model.add(tf.keras.layers.Dense(128, activation="relu"))
         model.add(tf.keras.layers.Dropout(0.5))
-        model.add(tf.keras.layers.Dense(1, activation="linear"))
+        model.add(tf.keras.layers.Dense(1, activation="sigmoid"))
         model.compile(loss=tf.keras.losses.mean_squared_error, optimizer = Adam, metrics = ["mse","mae"])
         
         # 다음 구조로써 해볼 것.

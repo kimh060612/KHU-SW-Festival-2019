@@ -74,8 +74,6 @@ class DeepRegression:
         model.add(tf.keras.layers.Dense(512, activation="relu"))
         model.add(tf.keras.layers.BatchNormalization(momentum=0.99, epsilon=0.001))
         model.add(tf.keras.layers.Dropout(0.5))
-        model.add(tf.keras.layers.Dense(512, activation="relu"))
-        model.add(tf.keras.layers.Dropout(0.5))
         model.add(tf.keras.layers.Dense(128, activation="relu"))
         model.add(tf.keras.layers.Dense(1, activation="sigmoid"))
         model.compile(loss=tf.keras.losses.mean_squared_error, optimizer = Adam, metrics = ["mse","mae"])

@@ -219,10 +219,10 @@ class REGRESSION:
         #xTrain, xTest, yTrain, yTest = train_test_split(X_data, Y_perc, test_size=0.2, random_state=531)
         
         # num leaves 조절하면서 학습 실험 잰행.. ==> 이번에는 정확도 위주로 
-        params = {'learning_rate': 0.01, 'max_depth': 16, 'boosting': 'gbdt', 'objective': 'regression', 'metric': 'rmse', 'num_leaves': 300, 'feature_fraction': 0.9, 'bagging_fraction': 0.7, 'bagging_freq': 5, 'seed':2018, 'device' : 'gpu'}
+        params = {'learning_rate': 0.005, 'max_depth': 16, 'boosting': 'gbdt', 'objective': 'regression', 'metric': 'rmse', 'num_leaves': 400, 'feature_fraction': 0.9, 'bagging_fraction': 0.7, 'bagging_freq': 5, 'seed':2018, 'device' : 'gpu'}
         
         pred = np.zeros(len(X_data))
-        cv = KFold(n_splits=5,shuffle=True,random_state=0)
+        cv = KFold(n_splits=10,shuffle=True,random_state=0)
         Error = []
         for train_index, test_index in cv.split(X_data):
             xTrain, xTest = X_data[train_index], X_data[test_index]
@@ -245,12 +245,12 @@ class REGRESSION:
         X_data = np.array(self.new_data_table)
         Y_perc = np.array(self.win_pre)
 
-        params = {'objective': 'reg:linear', 'eval_metric': 'rmse', 'eta': 0.005, 'max_depth': 15, 'subsample': 0.6, 'colsample_bytree': 0.6, 'alpha':0.001, 'random_state': 42, 'silent': True}
+        params = {'objective': 'reg:linear', 'eval_metric': 'rmse', 'eta': 0.005, 'max_depth': 30, 'subsample': 0.6, 'colsample_bytree': 0.6, 'alpha':0.001, 'random_state': 42, 'silent': True}
         params['gpu_id'] = 0
         params['tree_method'] = 'gpu_hist'
 
         pred = np.zeros(len(X_data))
-        cv = KFold(n_splits=5,shuffle=True,random_state=0)
+        cv = KFold(n_splits=10,shuffle=True,random_state=0)
         Error = []
         
         for train_index, test_index in cv.split(X_data):
@@ -277,14 +277,14 @@ class REGRESSION:
         Y_perc = np.array(self.win_pre)
 
         pred = np.zeros(len(X_data))
-        cv = KFold(n_splits=3,shuffle=True,random_state=0)
+        cv = KFold(n_splits=10,shuffle=True,random_state=0)
         Error = []
 
         for train_index, test_index in cv.split(X_data):
             xTrain, xTest = X_data[train_index], X_data[test_index]
             yTrain, yTest = Y_perc[train_index], Y_perc[test_index]
 
-            self.REGCAT = CatBoostRegressor(iterations=epoch, learning_rate=0.01, depth=4, l2_leaf_reg=100, bootstrap_type='Bernoulli', subsample=0.6, eval_metric='RMSE', metric_period=50, od_type='Iter', od_wait=45, random_seed=17, allow_writing_files=False, task_type="GPU", devices='0')
+            self.REGCAT = CatBoostRegressor(iterations=epoch, learning_rate=0.005, depth=4, l2_leaf_reg=200, bootstrap_type='Bernoulli', subsample=0.6, eval_metric='RMSE', metric_period=50, od_type='Iter', od_wait=45, random_seed=17, allow_writing_files=False, task_type="GPU", devices='0')
             self.REGCAT.fit(xTrain, yTrain, eval_set=(xTest, yTest), use_best_model=True, verbose=True)
 
             pred[test_index] = self.REGCAT.predict(xTest)
@@ -309,7 +309,7 @@ class REGRESSION:
         Y_perc = np.array(self.win_pre)
         
         pred = np.zeros(len(X_data))
-        cv = KFold(n_splits=3,shuffle=True,random_state=0)
+        cv = KFold(n_splits=10,shuffle=True,random_state=0)
         Error = []
 
         for train_index, test_index in cv.split(X_data):

@@ -38,14 +38,14 @@ def plot_history(history):
     plt.xlabel('Epoch')
     plt.ylabel('Mean Abs Error [MPG]')
     plt.plot(hist['epoch'], hist['mean_absolute_error'],label='Train Error')
-    plt.ylim([0.5,0.1])
+    plt.ylim([0.2,0.8])
     plt.legend()
 
     plt.subplot(2,1,1)
     plt.xlabel('Epoch')
     plt.ylabel('Mean Abs Error [MPG]')
     plt.plot(hist['epoch'], hist['val_mean_absolute_error'], label = 'Val Error')
-    plt.ylim([0.5,0.1])
+    plt.ylim([0.2,0.8])
     plt.legend()
     
 

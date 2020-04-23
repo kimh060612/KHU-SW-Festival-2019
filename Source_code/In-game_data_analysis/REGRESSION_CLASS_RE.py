@@ -44,7 +44,7 @@ class REGRESSION:
 
         
     #Preprocessing part for data. exclude Exception and useless variable, Scaling data(optional), and reconstructing the data table. 
-    def preprocessing(self, table, label, scale = False, scaler = "minmax"):
+    def preprocessing(self, table, label, scale = False, scaler = "minmax", OUTD = False):
         self.res_dict = {}
         for con in label:
             if con == "Id" or con == "groupId" or con == "matchId" or con == "matchType" or con == "winPlacePerc" or con == "maxPlace" or con == "rankPoints" or con == "killPoints" or con == "winPoints":
@@ -66,6 +66,10 @@ class REGRESSION:
                     except:
                         self.res_dict[index].append(float(con[label.index(index)]))
         self.new_labels = ["assists","boosts","damageDealt","DBNOs","headshotKills","heals","killPlace","kills","killStreaks","longestKill","matchDuration","numGroups","revives","roadKills","teamKills","vehicleDestroys","weaponsAcquired","rideDistance","walkDistance","swimDistance"]
+        
+        if not OUTD:
+            
+            pass
         
         if scale :
             if scaler == "minmax":
@@ -219,7 +223,7 @@ class REGRESSION:
         #xTrain, xTest, yTrain, yTest = train_test_split(X_data, Y_perc, test_size=0.2, random_state=531)
         
         # num leaves 조절하면서 학습 실험 잰행.. ==> 이번에는 정확도 위주로 
-        params = {'learning_rate': 0.001, 'max_depth': 16, 'boosting': 'gbdt', 'objective': 'regression', 'metric': 'rmse', 'num_leaves': 400, 'feature_fraction': 0.9, 'bagging_fraction': 0.7, 'bagging_freq': 5, 'seed':2018, 'device' : 'gpu'}
+        params = {'learning_rate': 0.001, 'max_depth': 16, 'boosting': 'gbdt', 'objective': 'regression', 'metric': 'rmse', 'num_leaves': 150, 'feature_fraction': 0.9, 'bagging_fraction': 0.7, 'bagging_freq': 5, 'seed':2018, 'device' : 'gpu'}
         
         pred = np.zeros(len(X_data))
         cv = KFold(n_splits=10,shuffle=True,random_state=0)
@@ -234,11 +238,13 @@ class REGRESSION:
             self.REGLG = lgb.train(params, train_ds, epoch, val_ds,verbose_eval=10, early_stopping_rounds=100)
             pred[test_index] = self.REGLG.predict(xTest)
             Error.append(mean_squared_error(pred[test_index],yTest))
+        
         lgb.plot_importance(self.REGLG)
         pl.title(Importance_name)
         pl.show()
         LG_rmse_score = np.sqrt(np.mean(Error))
         print("score: ",LG_rmse_score)
+        self.REGLG.save_model('model.txt', num_iteration=self.REGLG.best_iteration)
 
     def Total_REG_XG(self, Importance_name="Importance", Importance_analye = True, epoch = 2100):
         
@@ -284,7 +290,7 @@ class REGRESSION:
             xTrain, xTest = X_data[train_index], X_data[test_index]
             yTrain, yTest = Y_perc[train_index], Y_perc[test_index]
 
-            self.REGCAT = CatBoostRegressor(iterations=epoch, learning_rate=0.001, depth=4, l2_leaf_reg=200, bootstrap_type='Bernoulli', subsample=0.6, eval_metric='RMSE', metric_period=50, od_type='Iter', od_wait=45, random_seed=17, allow_writing_files=False, task_type="GPU", devices='0')
+            self.REGCAT = CatBoostRegressor(iterations=epoch, learning_rate=0.001, depth=4, l2_leaf_reg=50, bootstrap_type='Bernoulli', subsample=0.6, eval_metric='RMSE', metric_period=50, od_type='Iter', od_wait=45, random_seed=17, allow_writing_files=False, task_type="GPU", devices='0')
             self.REGCAT.fit(xTrain, yTrain, eval_set=(xTest, yTest), use_best_model=True, verbose=True)
 
             pred[test_index] = self.REGCAT.predict(xTest)
@@ -292,6 +298,7 @@ class REGRESSION:
         
         CAT_rmse_score = np.sqrt(np.mean(Error))
         print("score: ",CAT_rmse_score)
+        self.REGCAT.save_model("./CATMODEL")
     
     def Total_REG_Deep(self, epoch = 1000):
         

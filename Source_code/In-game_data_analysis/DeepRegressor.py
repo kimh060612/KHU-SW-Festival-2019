@@ -38,14 +38,14 @@ def plot_history(history):
     plt.xlabel('Epoch')
     plt.ylabel('Mean Abs Error [MPG]')
     plt.plot(hist['epoch'], hist['mean_absolute_error'],label='Train Error')
-    plt.ylim([0.2,0.8])
+    plt.ylim([0.04,0.1])
     plt.legend()
 
     plt.subplot(2,1,1)
     plt.xlabel('Epoch')
     plt.ylabel('Mean Abs Error [MPG]')
     plt.plot(hist['epoch'], hist['val_mean_absolute_error'], label = 'Val Error')
-    plt.ylim([0.2,0.8])
+    plt.ylim([0.04,0.1])
     plt.legend()
     
 
@@ -70,10 +70,8 @@ class DeepRegression:
         #model.add(tf.keras.layers.BatchNormalization(momentum=0.99, epsilon=0.001))
         model.add(tf.keras.layers.Dense(512, activation="relu"))
         model.add(tf.keras.layers.BatchNormalization(momentum=0.99, epsilon=0.001))
-        model.add(tf.keras.layers.Dropout(0.5))
         model.add(tf.keras.layers.Dense(512, activation="relu"))
         model.add(tf.keras.layers.BatchNormalization(momentum=0.99, epsilon=0.001))
-        model.add(tf.keras.layers.Dropout(0.5))
         model.add(tf.keras.layers.Dense(128, activation="relu"))
         model.add(tf.keras.layers.Dense(1, activation="sigmoid"))
         model.compile(loss=tf.keras.losses.mean_squared_error, optimizer = Adam, metrics = ["mse","mae"])

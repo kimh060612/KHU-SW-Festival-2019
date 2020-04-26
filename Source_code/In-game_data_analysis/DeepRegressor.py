@@ -26,7 +26,7 @@ def get_session(gpu_fraction=0.6):
 class PrintDot(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs):
         if epoch % 100 == 0: print('')
-        print('.', end='')
+        print('Epoch ', epoch, " done")
 
 def plot_history(history):
     hist = pd.DataFrame(history.history)
@@ -38,14 +38,14 @@ def plot_history(history):
     plt.xlabel('Epoch')
     plt.ylabel('Mean Abs Error [MPG]')
     plt.plot(hist['epoch'], hist['mean_absolute_error'],label='Train Error')
-    plt.ylim([0.04,0.065])
+    plt.ylim([0.04,0.08])
     plt.legend()
 
     plt.subplot(2,1,1)
     plt.xlabel('Epoch')
     plt.ylabel('Mean Abs Error [MPG]')
     plt.plot(hist['epoch'], hist['val_mean_absolute_error'], label = 'Val Error')
-    plt.ylim([0.04,0.065])
+    plt.ylim([0.04,0.08])
     plt.legend()
     
 
@@ -90,7 +90,7 @@ class DeepRegression:
         
         tf.keras.backend.set_session(get_session())
         early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
-        History = self.Regressor.fit(self.Data, self.Pred, batch_size=128, epochs=epoch,validation_split = 0.5, verbose=0, callbacks=[early_stop,PrintDot()])
+        History = self.Regressor.fit(self.Data, self.Pred, batch_size=512, epochs=epoch,validation_split = 0.5, verbose=0, callbacks=[early_stop,PrintDot()])
 
         hist = pd.DataFrame(History.history)
         

@@ -223,8 +223,7 @@ class REGRESSION:
         #xTrain, xTest, yTrain, yTest = train_test_split(X_data, Y_perc, test_size=0.2, random_state=531)
         
         # num leaves 조절하면서 학습 실험 잰행.. ==> 이번에는 정확도 위주로 
-        params = {'learning_rate': 0.001, 'max_depth': 16, 'boosting': 'gbdt', 'objective': 'regression', 'metric': 'rmse', 'num_leaves': 80, 'feature_fraction': 0.9, 'bagging_fraction': 0.7, 'bagging_freq': 5, 'seed':2018, 'device' : 'gpu'}
-        
+        params = {'learning_rate': 0.01, 'max_depth': 16, 'boosting': 'gbdt', 'objective': 'regression', 'metric': 'auc', 'is_training_metric': True, 'num_leaves': 144, 'feature_fraction': 0.9, 'bagging_fraction': 0.7, 'bagging_freq': 5, 'seed':2018}
         pred = np.zeros(len(X_data))
         cv = KFold(n_splits=10,shuffle=True,random_state=0)
         Error = []
@@ -239,7 +238,7 @@ class REGRESSION:
             pred[test_index] = self.REGLG.predict(xTest)
             Error.append(mean_squared_error(pred[test_index],yTest))
         
-        lgb.plot_importance(self.REGLG)
+        lgb.plot_metric(self.REGLG)
         pl.title(Importance_name)
         pl.show()
         LG_rmse_score = np.sqrt(np.mean(Error))
@@ -290,7 +289,7 @@ class REGRESSION:
             xTrain, xTest = X_data[train_index], X_data[test_index]
             yTrain, yTest = Y_perc[train_index], Y_perc[test_index]
 
-            self.REGCAT = CatBoostRegressor(iterations=epoch, learning_rate=0.001, depth=4, l2_leaf_reg=60, bootstrap_type='Bernoulli', subsample=0.6, eval_metric='RMSE', metric_period=50, od_type='Iter', od_wait=45, random_seed=17, allow_writing_files=False, task_type="GPU", devices='0')
+            self.REGCAT = CatBoostRegressor(iterations=1000, learning_rate=0.1, depth=4, l2_leaf_reg=20, bootstrap_type='Bernoulli', subsample=0.6, eval_metric='RMSE', metric_period=50, od_type='Iter', od_wait=45, random_seed=17, allow_writing_files=False, task_type="GPU", devices='0')
             self.REGCAT.fit(xTrain, yTrain, eval_set=(xTest, yTest), use_best_model=True, verbose=True)
 
             pred[test_index] = self.REGCAT.predict(xTest)

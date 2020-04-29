@@ -47,6 +47,8 @@ def plot_history(history):
     plt.plot(hist['epoch'], hist['val_mean_absolute_error'], label = 'Val Error')
     plt.ylim([0.04,0.08])
     plt.legend()
+
+    plt.savefig("./History.png")
     
 
 class DeepRegression:

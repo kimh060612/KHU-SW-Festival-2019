@@ -223,10 +223,11 @@ class REGRESSION:
         #xTrain, xTest, yTrain, yTest = train_test_split(X_data, Y_perc, test_size=0.2, random_state=531)
         
         # num leaves 조절하면서 학습 실험 잰행.. ==> 이번에는 정확도 위주로 
-        params = {'learning_rate': 0.01, 'max_depth': 16, 'boosting': 'gbdt', 'objective': 'regression', 'metric': 'mae', 'is_training_metric': True, 'num_leaves': 144, 'feature_fraction': 0.9, 'bagging_fraction': 0.7, 'bagging_freq': 5, 'seed':2018}
+        params = {'learning_rate': 0.01, 'max_depth': 16, 'boosting': 'gbdt', 'objective': 'regression', 'metric': 'mae', 'is_training_metric': True, 'num_leaves': 72, 'feature_fraction': 0.9, 'bagging_fraction': 0.7, 'bagging_freq': 5, 'seed':2018, 'device' : 'gpu'}
         pred = np.zeros(len(X_data))
         cv = KFold(n_splits=10,shuffle=True,random_state=0)
         Error = []
+
         for train_index, test_index in cv.split(X_data):
             xTrain, xTest = X_data[train_index], X_data[test_index]
             yTrain, yTest = Y_perc[train_index], Y_perc[test_index]
@@ -295,6 +296,7 @@ class REGRESSION:
             pred[test_index] = self.REGCAT.predict(xTest)
             Error.append(mean_squared_error(pred[test_index],yTest))
         
+        print("R2 Score: ", self.REGCAT.score())
         CAT_rmse_score = np.sqrt(np.mean(Error))
         print("score: ",CAT_rmse_score)
         self.REGCAT.save_model("./CATMODEL")

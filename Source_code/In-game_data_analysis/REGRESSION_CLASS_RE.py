@@ -222,6 +222,7 @@ class REGRESSION:
         Y_perc = np.array(self.win_pre)
         #xTrain, xTest, yTrain, yTest = train_test_split(X_data, Y_perc, test_size=0.2, random_state=531)
         
+        evals_res = {}
         # num leaves 조절하면서 학습 실험 잰행.. ==> 이번에는 정확도 위주로 
         params = {'learning_rate': 0.01, 'max_depth': 16, 'boosting': 'gbdt', 'objective': 'regression', 'metric': 'mae', 'is_training_metric': True, 'num_leaves': 72, 'feature_fraction': 0.9, 'bagging_fraction': 0.7, 'bagging_freq': 5, 'seed':2018, 'device' : 'gpu'}
         pred = np.zeros(len(X_data))
@@ -235,12 +236,12 @@ class REGRESSION:
             train_ds = lgb.Dataset(xTrain, label=yTrain)
             val_ds = lgb.Dataset(xTest, label=yTest)
 
-            self.REGLG = lgb.train(params, train_ds, epoch, val_ds,verbose_eval=10, early_stopping_rounds=100)
+            self.REGLG = lgb.train(params, train_ds, epoch, val_ds,verbose_eval=10, early_stopping_rounds=100, evals_result = evals_res)
             pred[test_index] = self.REGLG.predict(xTest)
             Error.append(mean_squared_error(pred[test_index],yTest))
         
-        lgb.plot_metric(self.REGLG)
-        pl.title(Importance_name)
+        ax = lgb.plot_metric(evals_res, metric="l1")
+        pl.title("MAE")
         pl.show()
         LG_rmse_score = np.sqrt(np.mean(Error))
         print("score: ",LG_rmse_score)

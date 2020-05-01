@@ -297,7 +297,7 @@ class REGRESSION:
             pred[test_index] = self.REGCAT.predict(xTest)
             Error.append(mean_squared_error(pred[test_index],yTest))
         
-        print("R2 Score: ", self.REGCAT.score())
+        #print("R2 Score: ", self.REGCAT.score())
         CAT_rmse_score = np.sqrt(np.mean(Error))
         print("score: ",CAT_rmse_score)
         self.REGCAT.save_model("./CATMODEL")

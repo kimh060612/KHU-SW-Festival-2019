@@ -49,6 +49,11 @@ def plot_history(history):
     plt.legend()
 
     plt.savefig("./History.png")
+
+    epoch = hist['epoch']
+    mae = hist['val_mean_absolute_error']
+    for i in range(len(epoch)):
+        print("epoch: ", epoch[i] ,"  mae: ", mae[i])
     
 
 class DeepRegression:

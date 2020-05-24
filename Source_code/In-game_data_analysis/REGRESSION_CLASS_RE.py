@@ -116,21 +116,22 @@ class REGRESSION:
         Y_data = np.array(self.win_pre)
         Label = np.array(self.index_labels)
         Xtable = pd.DataFrame(X_data, columns = self.index_labels)
+        abnormalList = []
         for i in range(numData):
             if Xtable["walkDistance"][i] < 0.5 and Y_data[i] > 0.98:
-                del self.new_data_table[i]
-                del self.win_pre[i]
+                abnormalList.append(i)
             elif Xtable["kills"][i] > 45 :
-                del self.new_data_table[i]
-                del self.win_pre[i]
+                abnormalList.append(i)
             elif Xtable["weaponsAcquired"][i] > 60 :
-                del self.new_data_table[i]
-                del self.win_pre[i]
+                abnormalList.append(i)
             elif Xtable["kills"][i] > 10 :
                 if (Xtable["headshotKills"][i] / Xtable["kills"][i]) > 0.95 :
-                    del self.new_data_table[i]
-                    del self.win_pre[i]
-            
+                    abnormalList.append(i)
+            elif Xtable["walkDistance"][i] > 5000 or Xtable["rideDistance"][i] > 10000:
+                abnormalList.append(i)    
+        for i in range(len(abnormalList)):
+            del self.new_data_table[i]
+            del self.win_pre[i]
 
     def win_place_perc_mean(self):
         return np.mean(np.array(self.win_pre))

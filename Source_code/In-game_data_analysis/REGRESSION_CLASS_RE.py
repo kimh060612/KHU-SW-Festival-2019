@@ -42,7 +42,11 @@ class REGRESSION:
         del self.table[0]
         self.win_pre = []
 
+    
+    def FeatureEngineering(self):
         
+        pass
+
     #Preprocessing part for data. exclude Exception and useless variable, Scaling data(optional), and reconstructing the data table. 
     def preprocessing(self, table, label, scale = False, scaler = "minmax", OUTD = False):
         self.res_dict = {}

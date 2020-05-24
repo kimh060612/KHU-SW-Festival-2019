@@ -42,11 +42,6 @@ class REGRESSION:
         del self.table[0]
         self.win_pre = []
 
-    
-    def FeatureEngineering(self):
-        
-        pass
-
     #Preprocessing part for data. exclude Exception and useless variable, Scaling data(optional), and reconstructing the data table. 
     def preprocessing(self, table, label, scale = False, scaler = "minmax", OUTD = False):
         self.res_dict = {}
@@ -115,7 +110,27 @@ class REGRESSION:
                 tmp.append(self.res_dict[index][i])
             flag = False
             self.new_data_table.append(tmp)
-    
+
+        numData = len(self.new_data_table)
+        X_data = np.array(self.new_data_table)
+        Y_data = np.array(self.win_pre)
+        Label = np.array(self.index_labels)
+        Xtable = pd.DataFrame(X_data, columns = self.index_labels)
+        for i in range(numData):
+            if Xtable["walkDistance"][i] < 0.5 and Y_data[i] > 0.98:
+                del self.new_data_table[i]
+                del self.win_pre[i]
+            elif Xtable["kills"][i] > 45 :
+                del self.new_data_table[i]
+                del self.win_pre[i]
+            elif Xtable["weaponsAcquired"][i] > 60 :
+                del self.new_data_table[i]
+                del self.win_pre[i]
+            elif Xtable["kills"][i] > 10 :
+                if (Xtable["headshotKills"][i] / Xtable["kills"][i]) > 0.95 :
+                    del self.new_data_table[i]
+                    del self.win_pre[i]
+            
 
     def win_place_perc_mean(self):
         return np.mean(np.array(self.win_pre))
@@ -230,7 +245,7 @@ class REGRESSION:
         # num leaves 조절하면서 학습 실험 잰행.. ==> 이번에는 정확도 위주로 
         params = {'learning_rate': 0.01, 'max_depth': 16, 'boosting': 'gbdt', 'objective': 'regression', 'metric': 'mae', 'is_training_metric': True, 'num_leaves': 72, 'feature_fraction': 0.9, 'bagging_fraction': 0.7, 'bagging_freq': 5, 'seed':2018, 'device' : 'gpu'}
         pred = np.zeros(len(X_data))
-        cv = KFold(n_splits=10,shuffle=True,random_state=0)
+        cv = KFold(n_splits=5,shuffle=True,random_state=0)
         Error = []
 
         for train_index, test_index in cv.split(X_data):
@@ -261,7 +276,7 @@ class REGRESSION:
         params['tree_method'] = 'gpu_hist'
 
         pred = np.zeros(len(X_data))
-        cv = KFold(n_splits=10,shuffle=True,random_state=0)
+        cv = KFold(n_splits=5,shuffle=True,random_state=0)
         Error = []
         
         for train_index, test_index in cv.split(X_data):
@@ -288,7 +303,7 @@ class REGRESSION:
         Y_perc = np.array(self.win_pre)
 
         pred = np.zeros(len(X_data))
-        cv = KFold(n_splits=10,shuffle=True,random_state=0)
+        cv = KFold(n_splits=5,shuffle=True,random_state=0)
         Error = []
 
         for train_index, test_index in cv.split(X_data):
@@ -322,7 +337,7 @@ class REGRESSION:
         Y_perc = np.array(self.win_pre)
         
         pred = np.zeros(len(X_data))
-        cv = KFold(n_splits=10,shuffle=True,random_state=0)
+        cv = KFold(n_splits=5,shuffle=True,random_state=0)
         Error = []
 
         for train_index, test_index in cv.split(X_data):

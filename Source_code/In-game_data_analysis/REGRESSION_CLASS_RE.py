@@ -1,12 +1,14 @@
 import matplotlib.pyplot as plt
 import matplotlib.pylab as pl
 import numpy as np
+from sklearn.model_selection import learning_curve
 from sklearn.model_selection import train_test_split, cross_val_score, KFold
 from sklearn.preprocessing import StandardScaler, RobustScaler, MinMaxScaler
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import Ridge
 import lightgbm as lgb
 import xgboost as xgb
+import catboost
 from catboost import CatBoostRegressor
 import catboost as cat
 from sklearn.metrics import mean_squared_error
@@ -137,6 +139,7 @@ class REGRESSION:
             flag = False
             self.new_data_table.append(tmp)
 
+        '''
         numData = len(self.new_data_table)
         X_data = np.array(self.new_data_table)
         Y_data = np.array(self.win_pre)
@@ -158,6 +161,7 @@ class REGRESSION:
         for i in range(len(abnormalList)):
             del self.new_data_table[i]
             del self.win_pre[i]
+        '''
 
     def win_place_perc_mean(self):
         return np.mean(np.array(self.win_pre))
@@ -270,39 +274,40 @@ class REGRESSION:
         
         evals_res = {}
         # num leaves 조절하면서 학습 실험 잰행.. ==> 이번에는 정확도 위주로 
-        params = {'learning_rate': 0.01, 'max_depth': 16, 'boosting': 'gbdt', 'objective': 'regression', 'metric': 'mae', 'is_training_metric': True, 'num_leaves': 72, 'feature_fraction': 0.9, 'bagging_fraction': 0.7, 'bagging_freq': 5, 'seed':2018, 'device' : 'gpu'}
+        params = {'learning_rate': 0.01, 'max_depth': 16, 'boosting': 'gbdt', 'objective': 'regression', 'metric': 'mean_absolute_error', 'is_training_metric': True, 'num_leaves': 72, 'feature_fraction': 0.9, 'bagging_fraction': 0.7, 'bagging_freq': 5, 'seed':2018, 'device' : 'gpu'}
         Val_pred = np.zeros(len(X_data))
         Train_pred = np.zeros(len(X_data))
         cv = KFold(n_splits=5,shuffle=True,random_state=0)
         Val_Error = []
         Train_Error = []
-        epoch = 0
+        Epoch = 0
         epoch_label = []
-
+        
         for train_index, test_index in cv.split(X_data):
             xTrain, xTest = X_data[train_index], X_data[test_index]
             yTrain, yTest = Y_perc[train_index], Y_perc[test_index]
 
             train_ds = lgb.Dataset(xTrain, label=yTrain)
-            val_ds = lgb.Dataset(xTest, label=yTest)
+            val_ds = lgb.Dataset(xTest, label=yTest, reference= train_ds)
 
-            self.REGLG = lgb.train(params, train_ds, epoch, val_ds,verbose_eval=10, early_stopping_rounds=100, evals_result = evals_res)
-            epoch += 1
-            epoch_label.append(epoch)
-            Val_pred[test_index] = self.REGLG.predict(xTest)
-            Train_pred[train_index] = self.REGLG.predict(xTrain)
-            Train_Error.append(mean_absolute_error(Train_pred[train_index], yTrain))
-            Val_Error.append(mean_absolute_error(Val_pred[test_index],yTest))
+            self.REGLG = lgb.train(params, train_ds, epoch,valid_sets=[train_ds, val_ds],verbose_eval=10, early_stopping_rounds=100, evals_result = evals_res)
+            #Epoch += 1
+            #epoch_label.append(Epoch)
+            #Val_pred[test_index] = self.REGLG.predict(xTest)
+            #Train_pred[train_index] = self.REGLG.predict(xTrain)
+            #Train_Error.append(mean_absolute_error(Train_pred[train_index], yTrain))
+            #Val_Error.append(mean_absolute_error(Val_pred[test_index],yTest))
         
-        Hist = {}
-        Hist['epoch'] = epoch_label
-        Hist['mean_absolute_error'] = Train_Error
-        Hist['val_mean_absolute_error'] = Val_Error
-        plot_history(Hist, "LightGBM_History")
+        #Hist = {}
+        #Hist['epoch'] = epoch_label
+        #Hist['mean_absolute_error'] = Train_Error
+        #Hist['val_mean_absolute_error'] = Val_Error
+        #plot_history(Hist, "LightGBM_History")
 
-        #ax = lgb.plot_metric(evals_res, metric="l1")
-        #pl.title("MAE")
-        #pl.show()
+        ax = lgb.plot_metric(evals_res)
+        pl.title("MAE")
+        pl.show()
+        pl.savefig("./LGHIST.png")
         #LG_rmse_score = np.sqrt(np.mean(Val_Error))
         #print("score: ",LG_rmse_score)
         self.REGLG.save_model('model.txt', num_iteration=self.REGLG.best_iteration)
@@ -348,33 +353,35 @@ class REGRESSION:
         cv = KFold(n_splits=5,shuffle=True,random_state=0)
         Val_Error = []
         Train_Error = []
-        epoch = 0
+        Epoch = 0
         epoch_label = []
-
+        Path_train = "/data/PUBG_EDA/Source_code/In-game_data_analysis/"
         for train_index, test_index in cv.split(X_data):
             xTrain, xTest = X_data[train_index], X_data[test_index]
             yTrain, yTest = Y_perc[train_index], Y_perc[test_index]
 
-            self.REGCAT = CatBoostRegressor(iterations=1000, learning_rate=0.1, depth=4, l2_leaf_reg=20, bootstrap_type='Bernoulli', subsample=0.6, eval_metric='MAE', metric_period=50, od_type='Iter', od_wait=45, random_seed=17, allow_writing_files=False, task_type="GPU", devices='0')
-            self.REGCAT.fit(xTrain, yTrain, eval_set=(xTest, yTest), use_best_model=True, verbose=True)
+            self.REGCAT = CatBoostRegressor(iterations=1000, learning_rate=0.1, depth=4, l2_leaf_reg=20, bootstrap_type='Bernoulli', subsample=0.6, eval_metric='MAE', metric_period=50, od_type='Iter', od_wait=45, random_seed=17, allow_writing_files=False, task_type="GPU", devices='0', train_dir=Path_train)
+            self.REGCAT.fit(xTrain, yTrain, eval_set=(xTest, yTest), use_best_model=True, verbose=False, plot= True)
             
-            epoch += 1
-            epoch_label.append(epoch)
+            Epoch += 1
+            epoch_label.append(Epoch)
             Val_pred[test_index] = self.REGCAT.predict(xTest)
             Train_pred[train_index] = self.REGCAT.predict(xTrain)
             Train_Error.append(mean_absolute_error(Train_pred[train_index], yTrain))
             Val_Error.append(mean_absolute_error(Val_pred[test_index],yTest))
         
-        Hist = {}
-        Hist['epoch'] = epoch_label
-        Hist['mean_absolute_error'] = Train_Error
-        Hist['val_mean_absolute_error'] = Val_Error
-        plot_history(Hist, "CatBoost_History")
-
+        #Hist = {}
+        #Hist['epoch'] = epoch_label
+        #Hist['mean_absolute_error'] = Train_Error
+        #Hist['val_mean_absolute_error'] = Val_Error
+        #plot_history(Hist, "CatBoost_History")
+        #self.REGCAT.
         #print("R2 Score: ", self.REGCAT.score())
         CAT_rmse_score = np.sqrt(np.mean(Val_Error))
         print("score: ",CAT_rmse_score)
         self.REGCAT.save_model("./CATMODEL")
+        w = catboost.MetricVisualizer(Path_train,subdirs=True)
+        w.start()
     
     def Total_REG_Deep(self, epoch = 1000):
         
@@ -394,10 +401,13 @@ class REGRESSION:
         Val_pred = np.zeros(len(X_data))
         Train_pred = np.zeros(len(X_data))
         cv = KFold(n_splits=5,shuffle=True,random_state=0)
-        Val_Error = []
-        Train_Error = []
-        epoch = 0
-        epoch_label = []
+        #Val_Error = []
+        #Train_Error = []
+        Epoch = 0
+        #epoch_label = []
+        train_sizes = None
+        train_scores = None
+        valid_scores = None
 
         for train_index, test_index in cv.split(X_data):
             xTrain, xTest = X_data[train_index], X_data[test_index]
@@ -409,21 +419,12 @@ class REGRESSION:
             print("Ridge Training Score: ", self.Ridge.score(xTrain, yTrain))
             print("Ridge Test Score: ", self.Ridge.score(xTest, yTest))
 
-            epoch += 1
-            epoch_label.append(epoch)
-            Val_pred[test_index] = self.Ridge.predict(xTest)
-            Train_pred[train_index] = self.Ridge.predict(xTrain)
-            Train_Error.append(mean_absolute_error(Train_pred[train_index], xTrain))
-            Val_Error.append(mean_absolute_error(Val_pred[test_index],yTest))
-
-        Hist = {}
-        Hist['epoch'] = epoch_label
-        Hist['mean_absolute_error'] = Train_Error
-        Hist['val_mean_absolute_error'] = Val_Error
-
-        plot_history(Hist, "Ridge_History")
-
-        print("Ridge MAE: ", np.mean(Val_Error))    
+        #Hist = {}
+        #Hist['epoch'] = epoch_label
+        #Hist['mean_absolute_error'] = Train_Error
+        #Hist['val_mean_absolute_error'] = Val_Error
+        #plot_history(Hist, "Ridge_History")
+        #print("Ridge MAE: ", np.mean(Val_Error))    
         
 
     # predict winplaceperc with the model we made

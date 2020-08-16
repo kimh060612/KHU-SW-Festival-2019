@@ -282,7 +282,7 @@ class REGRESSION:
         Train_Error = []
         Epoch = 0
         epoch_label = []
-        
+
         for train_index, test_index in cv.split(X_data):
             xTrain, xTest = X_data[train_index], X_data[test_index]
             yTrain, yTest = Y_perc[train_index], Y_perc[test_index]
@@ -290,7 +290,7 @@ class REGRESSION:
             train_ds = lgb.Dataset(xTrain, label=yTrain)
             val_ds = lgb.Dataset(xTest, label=yTest, reference= train_ds)
 
-            self.REGLG = lgb.train(params, train_ds, epoch,valid_sets=[train_ds, val_ds],verbose_eval=10, early_stopping_rounds=100, evals_result = evals_res)
+            self.REGLG = lgb.train(params, train_ds, epoch, valid_sets=[train_ds, val_ds], verbose_eval=10, early_stopping_rounds=100, evals_result = evals_res)
             #Epoch += 1
             #epoch_label.append(Epoch)
             #Val_pred[test_index] = self.REGLG.predict(xTest)
@@ -304,8 +304,8 @@ class REGRESSION:
         #Hist['val_mean_absolute_error'] = Val_Error
         #plot_history(Hist, "LightGBM_History")
 
-        ax = lgb.plot_metric(evals_res)
-        pl.title("MAE")
+        ax = lgb.plot_metric(evals_res, xlabel="Epoch", ylabel="Mean Abs Error")
+        pl.title("Mean absolute error")
         pl.show()
         pl.savefig("./LGHIST.png")
         #LG_rmse_score = np.sqrt(np.mean(Val_Error))
